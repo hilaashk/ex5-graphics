@@ -55,10 +55,25 @@ function degrees_to_radians(degrees) {
 function createBasketballCourt() {
   // Court floor - wooden surface
   const courtGeometry = new THREE.BoxGeometry(30, 0.2, 15);
+
+  const loader = new THREE.TextureLoader();
+  const courtTexture = loader.load('src/texture/court-texture.jpg');
+  courtTexture.wrapS = THREE.RepeatWrapping;
+  courtTexture.wrapT = THREE.RepeatWrapping;
+  courtTexture.repeat.set(14, 8); // Adjust to scale texture nicely
+
   const courtMaterial = new THREE.MeshPhongMaterial({ 
-    color: 0xc68642,  // Brown wood color
-    shininess: 50
+    map: courtTexture,
+    shininess: 30
   });
+
+
+
+
+  // const courtMaterial = new THREE.MeshPhongMaterial({ 
+  //   color: 0xc68642,  // Brown wood color
+  //   shininess: 50
+  // });
   const court = new THREE.Mesh(courtGeometry, courtMaterial);
   court.receiveShadow = true;
   scene.add(court);
@@ -258,14 +273,25 @@ function createBasketballHoop(isLeft) {
   scene.add(group);
 }
 
+// Load basketball texture
+const loader = new THREE.TextureLoader();
+const basketballTexture = loader.load('src/texture/ball-texture.jpg');
+
 function createStaticBasketball() {
   // Create basketball with better material properties
   const ballGeometry = new THREE.SphereGeometry(0.6, 64, 64); // Higher resolution
-  const ballMaterial = new THREE.MeshPhongMaterial({ 
-    color: 0xd2691e,  // More realistic basketball orange
-    shininess: 20,    // Less shiny, more matte
-    specular: 0x222222 // Darker specular highlights
-  });  const basketball = new THREE.Mesh(ballGeometry, ballMaterial);
+  // const ballMaterial = new THREE.MeshPhongMaterial({ 
+  //   color: 0xd2691e,  // More realistic basketball orange
+  //   shininess: 20,    // Less shiny, more matte
+  //   specular: 0x222222 // Darker specular highlights
+  // });  
+    const ballMaterial = new THREE.MeshPhongMaterial({ 
+    map: basketballTexture,      // <---- here is the texture applied
+    shininess: 20,
+    specular: 0x222222
+  });
+  
+  const basketball = new THREE.Mesh(ballGeometry, ballMaterial);
   basketball.position.set(0, 0.7, 0);  // Place ball at center court, slightly elevated
   basketball.castShadow = true;
   basketball.receiveShadow = true;
