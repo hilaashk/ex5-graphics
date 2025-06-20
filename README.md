@@ -39,5 +39,20 @@ This project renders a realistic basketball court with hoops, markings, lighting
 Feel free to clone and customize this court to suit your own game or simulation!
 
 ---
+## 📷 Gallery
+
+Here are some additional views from the scene:
+
+### 🏀 Ball
+![Ball](images/ball.png)
+
+### 🏀 Hoop (Side 1)
+![Hoop 1](images/hoop1.png)
+
+### 🏀 Hoop (Side 2)
+![Hoop 2](images/hoop2.png)
+
+---
+
 ## Group Member
 - Hila Ashkenazy
