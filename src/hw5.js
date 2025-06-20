@@ -259,58 +259,86 @@ function createBasketballHoop(isLeft) {
 }
 
 function createStaticBasketball() {
-  // Ball geometry
-  const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-  const ballMaterial = new THREE.MeshPhongMaterial({
-    color: 0xff6600,
-    shininess: 30
+  // Create basketball with better material properties
+  const ballGeometry = new THREE.SphereGeometry(0.6, 64, 64); // Higher resolution
+  const ballMaterial = new THREE.MeshPhongMaterial({ 
+    color: 0xd2691e,  // More realistic basketball orange
+    shininess: 20,    // Less shiny, more matte
+    specular: 0x222222 // Darker specular highlights
+  });  const basketball = new THREE.Mesh(ballGeometry, ballMaterial);
+  basketball.position.set(0, 0.7, 0);  // Place ball at center court, slightly elevated
+  basketball.castShadow = true;
+  basketball.receiveShadow = true;
+  scene.add(basketball);
+  
+  // Create realistic basketball seam lines
+  const seamMaterial = new THREE.LineBasicMaterial({ 
+    color: 0x000000,
+    linewidth: 2
   });
-  const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-  ball.position.set(0, 0.7, 0);  // Positioned at center court
-  ball.castShadow = true;
-  
-  // Create seam lines
-  const seamMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    // Create a group for the ball and its seams
-  const ballGroup = new THREE.Group();
-  ballGroup.position.set(0, 0.7, 0);
-  
-  // Horizontal seam
-  const horizontalPoints = [];
+
+  // Create the main seams of the basketball
+  const seams = new THREE.Group();
+
+  // Create horizontal seam (equator)
+  const equatorPoints = [];
   for (let i = 0; i <= 64; i++) {
     const angle = (i / 64) * Math.PI * 2;
-    horizontalPoints.push(new THREE.Vector3(
-      Math.cos(angle) * 0.51,
+    equatorPoints.push(new THREE.Vector3(
+      Math.cos(angle) * 0.61,
       0,
-      Math.sin(angle) * 0.51
+      Math.sin(angle) * 0.61
     ));
   }
-  const horizontalSeam = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(horizontalPoints),
+  const equatorSeam = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(equatorPoints),
     seamMaterial
   );
-  ballGroup.add(horizontalSeam);
-  
-  // Vertical seams
-  for (let i = 0; i < 4; i++) {
-    const angle = (i / 4) * Math.PI;
-    const verticalPoints = [];
-    for (let j = 0; j <= 32; j++) {
-      const verticalAngle = (j / 32) * Math.PI;
-      verticalPoints.push(new THREE.Vector3(
-        Math.cos(angle) * 0.51 * Math.sin(verticalAngle),
-        Math.cos(verticalAngle) * 0.51,
-        Math.sin(angle) * 0.51 * Math.sin(verticalAngle)
-      ));
+  seams.add(equatorSeam);
+
+  // Create three perpendicular sets of curved seams
+  // Each set rotated by 90 degrees from the others
+  for (let j = 0; j < 3; j++) {  // Now creating three perpendicular sets
+    const rotationAngle = j * Math.PI / 2;  // 0, 90, and 180 degrees rotation
+    
+    // Create complete circular seams
+    for (let i = -1; i <= 1; i += 2) {  // Create left and right curves
+      const points = [];
+      // Create full circle of points
+      for (let t = 0; t <= 64; t++) {
+        const angle = (t / 64) * Math.PI * 2;
+        
+        let x, y, z;
+        if (j === 0) {
+          // First set (around X axis)
+          x = 0.61 * Math.cos(angle);
+          y = 0.61 * i * Math.sin(angle);
+          z = 0;
+        } else if (j === 1) {
+          // Second set (around Y axis)
+          x = 0;
+          y = 0.61 * Math.cos(angle);
+          z = 0.61 * i * Math.sin(angle);
+        } else {
+          // Third set (around Z axis)
+          x = 0.61 * i * Math.sin(angle);
+          y = 0;
+          z = 0.61 * Math.cos(angle);
+        }
+        
+        points.push(new THREE.Vector3(x, y, z));
+      }
+      const curvedSeam = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(points),
+        seamMaterial
+      );
+      seams.add(curvedSeam);
     }
-    const verticalSeam = new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints(verticalPoints),
-      seamMaterial
-    );    ballGroup.add(verticalSeam);
   }
-  
-  ballGroup.add(ball);
-  scene.add(ballGroup);
+
+  // Position all seams
+  seams.position.copy(basketball.position);
+  scene.add(seams);
 }
 
 // Setup orbit controls
