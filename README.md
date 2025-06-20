@@ -12,9 +12,9 @@ This project renders a realistic basketball court with hoops, markings, lighting
 
 | Component                | Status | Notes                                                                 |
 |--------------------------|--------|-----------------------------------------------------------------------|
-| Court surface & markings | ✅     | All required lines (centre, circle, 3‑pt arcs, boundaries) – exact regulation scale |
-| Two complete hoops       | ✅     | Backboard, rim, 8‑segment net, pole & support arm; positioned at 3.05 m height |
-| Static basketball        | ✅     | 0.6 m Ø sphere, realistic seams, floating at centre court            |
+| Court surface & markings | ✅     | All required lines                                                   |
+| Two complete hoops       | ✅     | Backboard, rim, 8‑segment net, pole & support arm                    |
+| Static basketball        | ✅     | Sphere, realistic seams, and added texture at center court           |
 | Camera & lighting        | ✅     | Directional + ambient lights, shadows, OrbitControls (toggle `O`)    |
 | UI framework             | ✅     | HTML containers for future score & controls, responsive CSS          |
 
