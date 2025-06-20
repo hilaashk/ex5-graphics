@@ -200,13 +200,12 @@ function createBasketballHoop(isLeft) {
   backboard.position.set(xPosition, 6, 0);
   backboard.castShadow = true;
   group.add(backboard);
-  
-  // Rim
+    // Rim
   const rimGeometry = new THREE.TorusGeometry(0.45, 0.02, 8, 24);
   const rimMaterial = new THREE.MeshPhongMaterial({ color: 0xff6600 });
   const rim = new THREE.Mesh(rimGeometry, rimMaterial);
   rim.position.set(xPosition + (isLeft ? 0.45 : -0.45), 5.3, 0);
-  rim.rotation.y = Math.PI / 2;
+  rim.rotation.x = Math.PI / 2;  // Rotate around X axis to lay flat
   rim.castShadow = true;
   group.add(rim);
   
@@ -272,6 +271,9 @@ function createStaticBasketball() {
   
   // Create seam lines
   const seamMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    // Create a group for the ball and its seams
+  const ballGroup = new THREE.Group();
+  ballGroup.position.set(0, 0.7, 0);
   
   // Horizontal seam
   const horizontalPoints = [];
@@ -279,7 +281,7 @@ function createStaticBasketball() {
     const angle = (i / 64) * Math.PI * 2;
     horizontalPoints.push(new THREE.Vector3(
       Math.cos(angle) * 0.51,
-      0.7,
+      0,
       Math.sin(angle) * 0.51
     ));
   }
@@ -287,7 +289,7 @@ function createStaticBasketball() {
     new THREE.BufferGeometry().setFromPoints(horizontalPoints),
     seamMaterial
   );
-  scene.add(horizontalSeam);
+  ballGroup.add(horizontalSeam);
   
   // Vertical seams
   for (let i = 0; i < 4; i++) {
@@ -297,18 +299,18 @@ function createStaticBasketball() {
       const verticalAngle = (j / 32) * Math.PI;
       verticalPoints.push(new THREE.Vector3(
         Math.cos(angle) * 0.51 * Math.sin(verticalAngle),
-        0.7 + Math.cos(verticalAngle) * 0.51,
+        Math.cos(verticalAngle) * 0.51,
         Math.sin(angle) * 0.51 * Math.sin(verticalAngle)
       ));
     }
     const verticalSeam = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(verticalPoints),
       seamMaterial
-    );
-    scene.add(verticalSeam);
+    );    ballGroup.add(verticalSeam);
   }
   
-  scene.add(ball);
+  ballGroup.add(ball);
+  scene.add(ballGroup);
 }
 
 // Setup orbit controls
