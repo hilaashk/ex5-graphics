@@ -127,7 +127,7 @@ function createBasketballCourt() {
 }
 
     // Three-point line
-    const threePointRadius = 6.0;
+    const threePointRadius = 6.7;
     const threePointLine = [];
     
     // Calculate where the arc intersects with the sideline
