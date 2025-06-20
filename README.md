@@ -23,6 +23,10 @@ This project renders a realistic basketball court with hoops, markings, lighting
 
 - **Scoreboard**: Mounted scoreboard area prepared for game stats and timer display.
 - **Bleachers with railing**: Tiered seating added on both sides for audience, with safety railing modeled.
+- **Court detail enhancements**:
+  - **Restricted area arc** (semi-circle under the hoop)
+  - **Free-throw lines** and key 
+  - **Out-of-bounds lines** clearly marked on all sides
 ---
 
 ## 🕹️ Controls
