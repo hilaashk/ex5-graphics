@@ -91,8 +91,6 @@ const boundaryGeometry = new THREE.BufferGeometry().setFromPoints(boundaryPoints
 const boundaryLine = new THREE.Line(boundaryGeometry, lineMaterial); // reuse white lineMaterial
 scene.add(boundaryLine);
 
-
-  
   // Center line
   const centerLineGeometry = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(0, 0.11, -7.5),
@@ -292,11 +290,6 @@ const basketballTexture = loader.load('src/texture/ball-texture.jpg');
 function createStaticBasketball() {
   // Create basketball with better material properties
   const ballGeometry = new THREE.SphereGeometry(0.6, 64, 64); // Higher resolution
-  // const ballMaterial = new THREE.MeshPhongMaterial({ 
-  //   color: 0xd2691e,  // More realistic basketball orange
-  //   shininess: 20,    // Less shiny, more matte
-  //   specular: 0x222222 // Darker specular highlights
-  // });  
     const ballMaterial = new THREE.MeshPhongMaterial({ 
     map: basketballTexture,      // <---- here is the texture applied
     shininess: 20,
@@ -598,16 +591,3 @@ function init() {
 
 // Start everything
 init();
-
-// Log to verify scene is initialized
-console.log('%c Scene Initialization Status:', 'background: #222; color: #bada55; font-size: 16px');
-console.log('%c Number of objects in scene:', 'color: #0066FF', scene.children.length);
-console.log('%c Camera position:', 'color: #0066FF', {
-    x: camera.position.x,
-    y: camera.position.y,
-    z: camera.position.z
-});
-console.log('%c Controls status:', 'color: #0066FF', {
-    enabled: controls.enabled,
-    target: controls.target
-});

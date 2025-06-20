@@ -1,20 +1,43 @@
 # Computer Graphics - Exercise 5 - WebGL Basketball Court
 
-## Getting Started
+![Court Demo](court.gif)
+
+# 🏀 Basketball Court Scene – WebGL Demo
+
+This project renders a realistic basketball court with hoops, markings, lighting, and a floating ball. It includes interactive camera controls and a foundation for future UI integration.
+
+---
+
+## ✅ Component Status
+
+| Component                | Status | Notes                                                                 |
+|--------------------------|--------|-----------------------------------------------------------------------|
+| Court surface & markings | ✅     | All required lines (centre, circle, 3‑pt arcs, boundaries) – exact regulation scale |
+| Two complete hoops       | ✅     | Backboard, rim, 8‑segment net, pole & support arm; positioned at 3.05 m height |
+| Static basketball        | ✅     | 0.6 m Ø sphere, realistic seams, floating at centre court            |
+| Camera & lighting        | ✅     | Directional + ambient lights, shadows, OrbitControls (toggle `O`)    |
+| UI framework             | ✅     | HTML containers for future score & controls, responsive CSS          |
+
+---
+## 🎁 Bonus Features
+
+- **Scoreboard**: Mounted scoreboard area prepared for game stats and timer display.
+- **Bleachers with railing**: Tiered seating added on both sides for audience, with safety railing modeled.
+---
+
+## 🕹️ Controls
+
+- Press **`O`** to toggle Orbit camera control.
+- Use mouse or touch to rotate, pan, and zoom when Orbit is active.
+
+## 📸 How to run
 1. Clone this repository to your local machine
 2. Make sure you have Node.js installed
 3. Start the local web server: `node index.js`
 4. Open your browser and go to http://localhost:8000
 
-## Complete Instructions
-**All detailed instructions, requirements, and specifications can be found in:**
-`basketball_exercise_instructions.html`
+Feel free to clone and customize this court to suit your own game or simulation!
 
-## Group Members
-**MANDATORY: Add the full names of all group members here:**
+---
+## Group Member
 - Hila Ashkenazy
-
-
-## Technical Details
-- Run the server with: `node index.js`
-- Access at http://localhost:8000 in your web browser
