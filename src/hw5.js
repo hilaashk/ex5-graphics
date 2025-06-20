@@ -3,6 +3,10 @@
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB); // Sky blue background
 
+// Declare controls at the top level
+let controls;
+let isOrbitEnabled = true;
+
 // Initialize renderer with alpha and proper color management
 const renderer = new THREE.WebGLRenderer({ 
     antialias: true,
@@ -27,10 +31,11 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 // Setup lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Reduced ambient light intensity
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+// Main directional light (sun-like)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Reduced intensity
 directionalLight.position.set(0, 20, 10);
 directionalLight.castShadow = true;
 
@@ -374,14 +379,148 @@ function createStaticBasketball() {
   scene.add(seams);
 }
 
-// Setup orbit controls
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.maxPolarAngle = Math.PI / 2;
-controls.minDistance = 15;
-controls.maxDistance = 50;
-let isOrbitEnabled = true;
+// Create bleachers for both sides of the court
+function createBleachers() {
+    const seatDepth = 1;
+    const seatHeight = 0.5;
+    const seatWidth = 30; // Same as court length
+    const rows = 4;
+    const spacing = 0.5; // Space between rows
+    const railingHeight = 1.0; // Height of the railing above the seat
+    
+    // Create materials
+    const redMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const whiteMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const metalMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x888888,
+        metalness: 0.8,
+        roughness: 0.2
+    });
+    
+    // Function to create railing for a row
+    function createRailing(group, rowY, rowZ, rowDepth) {
+        // Vertical posts at both ends
+        const postGeometry = new THREE.CylinderGeometry(0.03, 0.03, railingHeight, 8);
+        
+        // Left post
+        const leftPost = new THREE.Mesh(postGeometry, metalMaterial);
+        leftPost.position.set(-seatWidth/2, rowY + railingHeight/2, rowZ);
+        leftPost.castShadow = true;
+        group.add(leftPost);
+        
+        // Right post
+        const rightPost = new THREE.Mesh(postGeometry, metalMaterial);
+        rightPost.position.set(seatWidth/2, rowY + railingHeight/2, rowZ);
+        rightPost.castShadow = true;
+        group.add(rightPost);
+        
+        // Horizontal rail
+        const railGeometry = new THREE.CylinderGeometry(0.02, 0.02, seatWidth, 8);
+        railGeometry.rotateZ(Math.PI/2);
+        const rail = new THREE.Mesh(railGeometry, metalMaterial);
+        rail.position.set(0, rowY + railingHeight, rowZ);
+        rail.castShadow = true;
+        group.add(rail);
+        
+        // Diagonal supports
+        const supportLength = Math.sqrt(Math.pow(railingHeight, 2) + Math.pow(rowDepth/2, 2));
+        const supportAngle = Math.atan2(railingHeight, rowDepth/2);
+        const supportGeometry = new THREE.CylinderGeometry(0.015, 0.015, supportLength, 6);
+        
+        // Left diagonal supports
+        const leftSupport = new THREE.Mesh(supportGeometry, metalMaterial);
+        leftSupport.position.set(-seatWidth/2, rowY + railingHeight/2, rowZ + rowDepth/4);
+        leftSupport.rotation.x = Math.PI/2 - supportAngle;
+        leftSupport.castShadow = true;
+        group.add(leftSupport);
+        
+        // Right diagonal supports
+        const rightSupport = new THREE.Mesh(supportGeometry, metalMaterial);
+        rightSupport.position.set(seatWidth/2, rowY + railingHeight/2, rowZ + rowDepth/4);
+        rightSupport.rotation.x = Math.PI/2 - supportAngle;
+        rightSupport.castShadow = true;
+        group.add(rightSupport);
+    }
+    
+    // Function to create one side of bleachers
+    function createBleacherSide(isLeft) {
+        const group = new THREE.Group();
+        const zPosition = isLeft ? -10 : 10; // Position on either side of court
+        
+        // Create rows
+        for(let row = 0; row < rows; row++) {
+            const material = row % 2 === 0 ? redMaterial : whiteMaterial;
+            const seatGeometry = new THREE.BoxGeometry(seatWidth, seatHeight, seatDepth);
+            const seat = new THREE.Mesh(seatGeometry, material);
+            
+            // Position each row higher and further back than the last
+            const rowY = row * (seatHeight + spacing);
+            const rowZ = zPosition + (row * (seatDepth + spacing)) * (isLeft ? -1 : 1);
+            
+            seat.position.set(0, rowY, rowZ);
+            seat.castShadow = true;
+            seat.receiveShadow = true;
+            group.add(seat);
+            
+            // Add railings for each row
+            createRailing(
+                group, 
+                rowY, 
+                rowZ + (isLeft ? -seatDepth/2 : seatDepth/2), // Position railing at the front edge of each row
+                seatDepth
+            );
+        }
+        
+        scene.add(group);
+    }
+    
+    // Create bleachers on both sides
+    createBleacherSide(true);  // Left side
+    createBleacherSide(false); // Right side
+}
+
+// Create scoreboard
+function createScoreboard() {
+    // Create main scoreboard box
+    const boardSize = { width: 4, height: 2, depth: 1.5 };
+    const scoreboardGeometry = new THREE.BoxGeometry(boardSize.width, boardSize.height, boardSize.depth);
+    const scoreboardMaterial = new THREE.MeshPhongMaterial({
+        color: 0x000000,
+        shininess: 30
+    });
+    const scoreboard = new THREE.Mesh(scoreboardGeometry, scoreboardMaterial);
+    scoreboard.position.set(0, 8, 0); // Position above court center
+    scoreboard.castShadow = true;
+    scene.add(scoreboard);
+
+    // Create red score boxes for each side
+    const scoreBoxSize = { width: 1.2, height: 1.2, depth: 0.1 };
+    const scoreBoxGeometry = new THREE.BoxGeometry(scoreBoxSize.width, scoreBoxSize.height, scoreBoxSize.depth);
+    const scoreBoxMaterial = new THREE.MeshPhongMaterial({
+        color: 0xff0000,
+        shininess: 50,
+        emissive: 0x330000 // Slight glow effect
+    });
+
+    // Add score boxes to all four sides
+    const sides = [
+        { rotation: [0, 0, 0], offset: boardSize.depth/2 },           // Front
+        { rotation: [0, Math.PI, 0], offset: -boardSize.depth/2 },    // Back
+       
+    ];
+
+    sides.forEach(side => {
+        const leftBox = new THREE.Mesh(scoreBoxGeometry, scoreBoxMaterial);
+        leftBox.position.set(-1, 0, side.offset + 0.01); // Slightly offset to avoid z-fighting
+        leftBox.rotation.set(...side.rotation);
+        scoreboard.add(leftBox);
+
+        const rightBox = new THREE.Mesh(scoreBoxGeometry, scoreBoxMaterial);
+        rightBox.position.set(1, 0, side.offset + 0.01); // Slightly offset to avoid z-fighting
+        rightBox.rotation.set(...side.rotation);
+        scoreboard.add(rightBox);
+    });
+}
 
 // Handle window resizing
 window.addEventListener('resize', onWindowResize, false);
@@ -438,6 +577,16 @@ function init() {
     createBasketballHoop(true);   // Left hoop
     createBasketballHoop(false);  // Right hoop
     createStaticBasketball();
+    createBleachers();           // Add bleachers
+    createScoreboard();          // Add scoreboard
+    
+    // Setup orbit controls
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.minDistance = 15;
+    controls.maxDistance = 50;
     
     // Set initial control properties
     controls.target.set(0, 0, 0);
