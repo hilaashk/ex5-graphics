@@ -50,10 +50,10 @@ Here are some additional views from the scene:
 ### 🏀 Ball
 ![Ball](images/ball.png)
 
-### 🏀 Hoop (Side 1)
+### 🏀 Hoop (Side view)
 ![Hoop 1](images/hoop1.png)
 
-### 🏀 Hoop (Side 2)
+### 🏀 Hoop (Top view)
 ![Hoop 2](images/hoop2.png)
 
 ---
