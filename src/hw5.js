@@ -62,7 +62,8 @@ function createBasketballCourt() {
   const court = new THREE.Mesh(courtGeometry, courtMaterial);
   court.receiveShadow = true;
   scene.add(court);
-    // Court lines material (white)
+
+  // Court lines material (white)
   const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
   
   // Center line
@@ -83,72 +84,70 @@ function createBasketballCourt() {
       0.11,
       Math.sin(angle) * circleRadius
     ));
-  }  const centerCircleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
+  }
+  const centerCircleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
   const centerCircle = new THREE.Line(centerCircleGeometry, lineMaterial);
   scene.add(centerCircle);
 
   // Create court markings for each half
   function createCourtHalf(isLeft) {
     const points = [];
-    const startX = isLeft ? -15 : 15;
+    const startX = isLeft ? -15 : 15;  // Baseline position
+    const ftLineX = isLeft ? -10.4 : 10.4;  // Free throw line position (4.6 units from baseline)
     const direction = isLeft ? 1 : -1;
     
     // The Key (free throw lane)
-    const keyWidth = 4;
-    const keyLength = 5.8;
+    const keyWidth = 4;  // Width of the free throw lane
     
-    // Key rectangle
+    // Free throw line and key rectangle
     const keyRect = [
       new THREE.Vector3(startX, 0.11, -keyWidth/2),
-      new THREE.Vector3(startX - (direction * keyLength), 0.11, -keyWidth/2),
-      new THREE.Vector3(startX - (direction * keyLength), 0.11, keyWidth/2),
+      new THREE.Vector3(ftLineX, 0.11, -keyWidth/2),
+      new THREE.Vector3(ftLineX, 0.11, keyWidth/2),
       new THREE.Vector3(startX, 0.11, keyWidth/2),
       new THREE.Vector3(startX, 0.11, -keyWidth/2)
     ];
     
     // Free throw circle
-    const ftRadius = 2;
-    const ftCenter = new THREE.Vector3(startX - (direction * keyLength), 0.11, 0);
+    const ftRadius = 1.8;  // Correct free throw circle radius
+    const ftCenter = new THREE.Vector3(ftLineX, 0.11, 0);  // Center at the free throw line
     const ftPoints = [];
-    for (let i = 0; i <= 32; i++) {
-      const t = i / 32;
-      // Only create half circle
-      const angle = isLeft ? 
-        (Math.PI/2 + t * Math.PI) :  // Left side: 90° to 270°
-        (-Math.PI/2 + t * Math.PI);  // Right side: -90° to 90°
-      ftPoints.push(new THREE.Vector3(
-        ftCenter.x + Math.cos(angle) * ftRadius,
-        0.11,
-        ftCenter.z + Math.sin(angle) * ftRadius
-      ));
-    }
-      // Three-point line
-    const threePointRadius = 6.6;  // Slightly smaller radius to fit court
-    const threePointLine = [];
-    
-    // Start from bottom court
-    threePointLine.push(new THREE.Vector3(startX, 0.11, -7.5));
-    
-    // Create three-point arc
+      // Create half circle facing court center
     for (let i = 0; i <= 32; i++) {
       const t = i / 32;
       const angle = isLeft ?
-        (Math.PI/2 + t * Math.PI) :  // Left side: 90° to 270°
-        (-Math.PI/2 + t * Math.PI);  // Right side: -90° to 90°
+        (Math.PI / 2 - t * Math.PI) :  // Same sweep as right side
+        (Math.PI / 2 + t * Math.PI);
       
-      // Only add arc points where it should curve
-      if ((isLeft && t >= 0.15 && t <= 0.85) || 
-          (!isLeft && (t <= 0.35 || t >= 0.65))) {
-        threePointLine.push(new THREE.Vector3(
-          startX + Math.cos(angle) * threePointRadius,
-          0.11,
-          Math.sin(angle) * threePointRadius
-        ));
+      ftPoints.push(new THREE.Vector3(
+        ftCenter.x + Math.cos(angle) * ftRadius,
+        0.11,
+        ftCenter.z - Math.sin(angle) * ftRadius   // <-- Note the minus here
+      ));
+}
+
+    // Three-point line
+    const threePointRadius = 6.0;
+    const threePointLine = [];
+    
+    // Calculate where the arc intersects with the sideline
+    const sidelineZ = 7.5;  // Half court width
+    const arcCenter = new THREE.Vector3(startX, 0.11, 0);
+    
+    // Create three-point arc
+    for (let i = 0; i <= 64; i++) {
+      const t = i / 64;      const angle = isLeft ?
+        (Math.PI/2 - t * Math.PI) :  // Left side: 90° to -90° (facing into court)
+        (Math.PI/2 + t * Math.PI);   // Right side: 90° to -90°
+      
+      const pointX = arcCenter.x + Math.cos(angle) * threePointRadius;
+      const pointZ = Math.sin(angle) * threePointRadius;
+      
+      // Only add points that are within the court width
+      if (Math.abs(pointZ) <= sidelineZ) {
+        threePointLine.push(new THREE.Vector3(pointX, 0.11, pointZ));
       }
     }
-    
-    // Complete three-point line
-    threePointLine.push(new THREE.Vector3(startX, 0.11, 7.5));
     
     // Add all lines to scene
     const keyGeometry = new THREE.BufferGeometry().setFromPoints(keyRect);
@@ -158,7 +157,8 @@ function createBasketballCourt() {
     const ftGeometry = new THREE.BufferGeometry().setFromPoints(ftPoints);
     const ftLine = new THREE.Line(ftGeometry, lineMaterial);
     scene.add(ftLine);
-      const threePointGeometry = new THREE.BufferGeometry().setFromPoints(threePointLine);
+    
+    const threePointGeometry = new THREE.BufferGeometry().setFromPoints(threePointLine);
     const threePointArc = new THREE.Line(threePointGeometry, lineMaterial);
     scene.add(threePointArc);
   }
