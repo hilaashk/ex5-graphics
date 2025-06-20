@@ -65,21 +65,28 @@ function createBasketballCourt() {
   const courtMaterial = new THREE.MeshPhongMaterial({ 
     map: courtTexture,
     shininess: 30
-  });
+  });  
 
-
-
-
-  // const courtMaterial = new THREE.MeshPhongMaterial({ 
-  //   color: 0xc68642,  // Brown wood color
-  //   shininess: 50
-  // });
   const court = new THREE.Mesh(courtGeometry, courtMaterial);
   court.receiveShadow = true;
   scene.add(court);
 
   // Court lines material (white)
   const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+
+// Court boundary line (white rectangle)
+const boundaryPoints = [
+  new THREE.Vector3(-15, 0.12, -7.5),
+  new THREE.Vector3(15, 0.12, -7.5),
+  new THREE.Vector3(15, 0.12, 7.5),
+  new THREE.Vector3(-15, 0.12, 7.5),
+  new THREE.Vector3(-15, 0.12, -7.5)  // close the loop
+];
+const boundaryGeometry = new THREE.BufferGeometry().setFromPoints(boundaryPoints);
+const boundaryLine = new THREE.Line(boundaryGeometry, lineMaterial); // reuse white lineMaterial
+scene.add(boundaryLine);
+
+
   
   // Center line
   const centerLineGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -387,19 +394,23 @@ function onWindowResize() {
 
 // All UI elements are now handled in index.html
 
-// Handle key events
+
 function handleKeyDown(e) {
-  if (e.key === "o") {
+  if (e.key.toLowerCase() === "o") {
     isOrbitEnabled = !isOrbitEnabled;
+    console.log('Orbit controls:', isOrbitEnabled ? 'enabled' : 'disabled');
   }
 }
-
 document.addEventListener('keydown', handleKeyDown);
 
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
     
+    // Update orbit controls state
+    controls.enabled = isOrbitEnabled;
+    
+    // Always update controls if they're enabled
     if (controls.enabled) {
         controls.update();
     }
